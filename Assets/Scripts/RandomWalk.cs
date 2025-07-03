@@ -20,7 +20,7 @@ public static class RandomWalk {
         int attempts1 = 0;
         //if start pos is in a taken space, move up, down, right, or left until you reach a free space.
         while ((walkedSet.Contains(startPos) || Mathf.Abs(startPos.x) <= 3 && Mathf.Abs(startPos.z) <= 3) && attempts1 < 100) {
-            Debug.Log("Started in a taken space");
+            //Debug.Log("Started in a taken space");
             Vector3Int shift = cardinalDirectionsList[Random.Range(0, 3)];
             startPos += shift;
             prevMove = shift;

@@ -27,6 +27,7 @@ public class DungeonGenerator : MonoBehaviour
     private HashSet<Vector3Int> wallsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> doorsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> floorsTotal = new HashSet<Vector3Int>();
+    private HashSet<Vector3Int> starterWallTotal = new HashSet<Vector3Int>();
 
     public static List<Vector3Int> cardinalDirectionsList = new List<Vector3Int>()
     {
@@ -43,6 +44,14 @@ public class DungeonGenerator : MonoBehaviour
 
     public void generate() {
         clear();
+        for (int i = -3; i <= 3; i++) {
+            if (i == 0) continue;
+            starterWallTotal.Add(new Vector3Int(i, 1, 3));
+            starterWallTotal.Add(new Vector3Int(i, 1, -3));
+            starterWallTotal.Add(new Vector3Int(-3, 1, i));
+            starterWallTotal.Add(new Vector3Int(3, 1, i));
+        }
+        starterWallTotal.Add(new Vector3Int(3, 1, 0));
         //wallsTotal.Add(new Vector3Int(4,0,0));
         starterGen(starterTile);
         roomGen(numRooms, Vector3Int.zero);
@@ -105,12 +114,14 @@ public class DungeonGenerator : MonoBehaviour
             floorPos = RandomWalk.randomWalk(center, walkLength, roomSize, visited);
 
             if (floorPos.Count == 0) {
-                Debug.Log("couldn't find a good start pos");
+                //Debug.Log("couldn't find a good start pos");
                 continue;
             }
             if (numRooms > 1) {
                 var doorPos = RandomWalk.startReal + (RandomWalk.prevMove * -1);
-                doorGen(doorPos);
+                if (!starterWallTotal.Contains(doorPos)) {
+                    doorGen(doorPos);
+                }
             }
             visited.UnionWith(floorPos);
             floorsTotal.UnionWith(floorPos);
@@ -132,9 +143,9 @@ public class DungeonGenerator : MonoBehaviour
     }
 
     private void fillDoors() {
-        Debug.Log("fillDoors is called");
+        //Debug.Log("fillDoors is called");
         foreach (var door in doorsTotal) {
-            //create door up on Z
+            
             var doorCopy = door + Vector3Int.up;
             if (floorsTotal.Contains(door + cardinalDirectionsList[0])) {
                 var doorBlock = Instantiate(doorZ, new Vector3(doorCopy.x, doorCopy.y - 0.2f, doorCopy.z + 0.475f), Quaternion.identity);
