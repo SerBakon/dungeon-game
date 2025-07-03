@@ -92,15 +92,21 @@ public class DungeonGenerator : MonoBehaviour
         floorsTotal.Clear();
     }
 
+    private GameObject SpawnTile(GameObject prefab, Vector3 position, Quaternion rotation) {
+        GameObject obj = Instantiate(prefab, position, rotation);
+        tilesTotal.Add(obj);
+        return obj;
+    }
+
     private void tileGen(GameObject tile, HashSet<Vector3Int> floorPos) {
         foreach (var floor in floorPos) {
-            GameObject spawnedTile = Instantiate(tile, new Vector3(floor.x, floor.y, floor.z), Quaternion.identity);
+            GameObject spawnedTile = Instantiate(tile, floor, Quaternion.identity);
             tilesTotal.Add(spawnedTile); // Track the instantiated tiles
         }
     }
     private void roofGen(GameObject tile, HashSet<Vector3Int> floorPos) {
         foreach (var floor in floorPos) {
-            GameObject spawnedTile = Instantiate(tile, new Vector3(floor.x, floor.y, floor.z) + Vector3Int.up * 2, Quaternion.identity);
+            GameObject spawnedTile = Instantiate(tile, floor + Vector3Int.up * 2, Quaternion.identity);
             tilesTotal.Add(spawnedTile); // Track the instantiated tiles
         }
     }
@@ -132,7 +138,7 @@ public class DungeonGenerator : MonoBehaviour
                 roofGen(floorTile, floorPos);
             }
             //generates wall
-            wallGen(wallTile, floorPos);
+            wallGen(floorPos);
         }
     }
     private void doorGen(Vector3Int doorPos) {
@@ -204,29 +210,19 @@ public class DungeonGenerator : MonoBehaviour
         roofGen(tile, floorPos);
     }
 
-    private void wallGen(GameObject tile, HashSet<Vector3Int> floorPos) {
-        HashSet<Vector3Int> wallPos = new HashSet<Vector3Int>();
+    private void wallGen(HashSet<Vector3Int> floorPos) {
+        //HashSet<Vector3Int> wallPos = new HashSet<Vector3Int>();
         foreach (var floor in floorPos) {
-            var tileUp = floor + cardinalDirectionsList[0];
-            var tileDown = floor + cardinalDirectionsList[1];
-            var tileRight = floor + cardinalDirectionsList[2];
-            var tileLeft = floor + cardinalDirectionsList[3];
-
-            if(!floorPos.Contains(tileUp)) {
-                wallPos.Add(tileUp);
-            }
-            if (!floorPos.Contains(tileDown)) {
-                wallPos.Add(tileDown);
-            }
-            if (!floorPos.Contains(tileRight)) {
-                wallPos.Add(tileRight);
-            }
-            if (!floorPos.Contains(tileLeft)) {
-                wallPos.Add(tileLeft);
+            foreach (var dir in cardinalDirectionsList) {
+                var neighbor = floor + dir;
+                if (!floorPos.Contains(neighbor)) {
+                    wallsTotal.Add(neighbor);
+                    visited.Add(neighbor);
+                }
             }
         }
-        visited.UnionWith(wallPos);
-        wallsTotal.UnionWith(wallPos);
+        //visited.UnionWith(wallPos);
+        //wallsTotal.UnionWith(wallPos);
     }
 
 }

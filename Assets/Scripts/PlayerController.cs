@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
     public DungeonGenerator DungeonGenerator;
     //Movement
     public float moveSpeed;
+    public float sprintMultiplier;
 
     public float groundDrag;
 
@@ -52,12 +53,15 @@ public class PlayerController : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         if(Input.GetKey(jumpKey) && readyToJump && grounded) {
-            Debug.Log("Pressed Space");
+            //Debug.Log("Pressed Space");
             readyToJump = false;
 
             Jump();
             Invoke(nameof(ResetJump), jumpCooldown);
         }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift)) moveSpeed *= sprintMultiplier;
+        if (Input.GetKeyUp(KeyCode.LeftShift)) moveSpeed /= sprintMultiplier;
 
         if (Input.GetKey(KeyCode.R)) DungeonGenerator.generate();
     }
@@ -80,7 +84,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void Jump() {
-        Debug.Log("Trying to Jump");
+        //Debug.Log("Trying to Jump");
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
