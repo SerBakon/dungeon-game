@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class DungeonGenerator : MonoBehaviour
 {
-    [SerializeField] private Vector3Int startPos = Vector3Int.zero;
+    //[SerializeField] private Vector3Int startPos = Vector3Int.zero;
     [SerializeField] private int walkLength = 10;
     [SerializeField] private int numRooms = 10;
     [SerializeField] private int roomSize = 10;
@@ -21,6 +21,11 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject wallX;
     [SerializeField] private GameObject wallZ;
 
+    public Transform wallParent;
+    public Transform floorParent;
+    public Transform roofParent;
+    public Transform doorParent;
+
     private HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
     private HashSet<GameObject> tilesTotal = new HashSet<GameObject>();
 
@@ -29,7 +34,7 @@ public class DungeonGenerator : MonoBehaviour
     private HashSet<Vector3Int> floorsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> starterWallTotal = new HashSet<Vector3Int>();
 
-    public static List<Vector3Int> cardinalDirectionsList = new List<Vector3Int>()
+    public static readonly Vector3Int[] cardinalDirectionsList = new Vector3Int[]
     {
         new Vector3Int(0,0,1), //UP
         new Vector3Int(0,0,-1), //DOWN
@@ -39,46 +44,54 @@ public class DungeonGenerator : MonoBehaviour
 
     void Start()
     {
+        //Application.targetFrameRate = 500;
         generate();
     }
 
     public void generate() {
         clear();
-        for (int i = -3; i <= 3; i++) {
-            if (i == 0) continue;
-            starterWallTotal.Add(new Vector3Int(i, 1, 3));
-            starterWallTotal.Add(new Vector3Int(i, 1, -3));
-            starterWallTotal.Add(new Vector3Int(-3, 1, i));
-            starterWallTotal.Add(new Vector3Int(3, 1, i));
-        }
-        starterWallTotal.Add(new Vector3Int(3, 1, 0));
-        //wallsTotal.Add(new Vector3Int(4,0,0));
+        InitializeStarterWalls();
         starterGen(starterTile);
         roomGen(numRooms, Vector3Int.zero);
         //generate wall
         foreach (var wall in wallsTotal) {
             if (!(doorsTotal.Contains(wall))) {
-                GameObject spawnedTile = Instantiate(wallTile, new Vector3Int(wall.x, wall.y, wall.z) + Vector3Int.up, Quaternion.identity);
+                GameObject spawnedTile = Instantiate(wallTile, new Vector3Int(wall.x, wall.y, wall.z) + Vector3Int.up, Quaternion.identity, wallParent);
                 tilesTotal.Add(spawnedTile);
                 //wallObjectTotal.Add(spawnedTile); // Track the instantiated tiles
             }
             
         }
+        GenStarterWalls();
+        fillDoors();
+    }
+
+    private void InitializeStarterWalls() {
+        for (int i = -3; i <= 3; i++) {
+            if (i == 0) continue;
+            starterWallTotal.Add(new Vector3Int(i, 0, 3));
+            starterWallTotal.Add(new Vector3Int(i, 0, -3));
+            starterWallTotal.Add(new Vector3Int(-3, 0, i));
+            starterWallTotal.Add(new Vector3Int(3, 0, i));
+        }
+        //starterWallTotal.Add(new Vector3Int(-3, 1, 0));
+    }
+
+    private void GenStarterWalls() {
         //generate walls for starter
         for (int i = -3; i <= 3; i++) {
             if (i == 0) continue;
-            Instantiate(wallTile, new Vector3Int(i, 1, 3), Quaternion.identity);
-            Instantiate(wallTile, new Vector3Int(i, 1, -3), Quaternion.identity);
-            Instantiate(wallTile, new Vector3Int(-3, 1, i), Quaternion.identity);
-            Instantiate(wallTile, new Vector3Int(3, 1, i), Quaternion.identity);
-            wallsTotal.Add(new Vector3Int(i, 1, 3));
-            wallsTotal.Add(new Vector3Int(i, 1, -3));
-            wallsTotal.Add(new Vector3Int(-3, 1, i));
-            wallsTotal.Add(new Vector3Int(3, 1, i));
+            Instantiate(wallTile, new Vector3Int(i, 1, 3), Quaternion.identity, wallParent);
+            Instantiate(wallTile, new Vector3Int(i, 1, -3), Quaternion.identity, wallParent);
+            Instantiate(wallTile, new Vector3Int(-3, 1, i), Quaternion.identity, wallParent);
+            Instantiate(wallTile, new Vector3Int(3, 1, i), Quaternion.identity, wallParent);
+            wallsTotal.Add(new Vector3Int(i, 0, 3));
+            wallsTotal.Add(new Vector3Int(i, 0, -3));
+            wallsTotal.Add(new Vector3Int(-3, 0, i));
+            wallsTotal.Add(new Vector3Int(3, 0, i));
         }
-        Instantiate(wallTile, new Vector3Int(-3, 1, 0), Quaternion.identity);
-        wallsTotal.Add(new Vector3Int(3, 1, 0));
-        fillDoors();
+        //Instantiate(wallTile, new Vector3Int(-3, 1, 0), Quaternion.identity);
+        //wallsTotal.Add(new Vector3Int(-3, 0, 0));
     }
 
     private void clear() {
@@ -92,32 +105,24 @@ public class DungeonGenerator : MonoBehaviour
         floorsTotal.Clear();
     }
 
-    private GameObject SpawnTile(GameObject prefab, Vector3 position, Quaternion rotation) {
-        GameObject obj = Instantiate(prefab, position, rotation);
-        tilesTotal.Add(obj);
-        return obj;
-    }
-
     private void tileGen(GameObject tile, HashSet<Vector3Int> floorPos) {
         foreach (var floor in floorPos) {
-            GameObject spawnedTile = Instantiate(tile, floor, Quaternion.identity);
-            tilesTotal.Add(spawnedTile); // Track the instantiated tiles
+            tilesTotal.Add(Instantiate(tile, floor, Quaternion.identity, floorParent));
         }
     }
     private void roofGen(GameObject tile, HashSet<Vector3Int> floorPos) {
+        if (!roof) return;
         foreach (var floor in floorPos) {
-            GameObject spawnedTile = Instantiate(tile, floor + Vector3Int.up * 2, Quaternion.identity);
-            tilesTotal.Add(spawnedTile); // Track the instantiated tiles
+            tilesTotal.Add(Instantiate(tile, floor + (Vector3Int.up * 2), Quaternion.identity, roofParent));
         }
     }
     private void roomGen(int numRooms, Vector3Int center) {
-        HashSet<Vector3Int> floorPos = new HashSet<Vector3Int>();
         for (int i = 0; i < numRooms; i++) {
             // doesn't change center for the 3 starter rooms.
             if (center == Vector3Int.zero) {
                 center = wallsTotal.ElementAt(Random.Range(0, wallsTotal.Count));
             }
-            floorPos = RandomWalk.randomWalk(center, walkLength, roomSize, visited);
+            var floorPos = RandomWalk.randomWalk(center, walkLength, roomSize, visited);
 
             if (floorPos.Count == 0) {
                 //Debug.Log("couldn't find a good start pos");
@@ -134,9 +139,7 @@ public class DungeonGenerator : MonoBehaviour
             //generates floor
             tileGen(floorTile, floorPos);
             //generates roof
-            if(roof) {
-                roofGen(floorTile, floorPos);
-            }
+            roofGen(floorTile, floorPos);
             //generates wall
             wallGen(floorPos);
         }
@@ -144,50 +147,40 @@ public class DungeonGenerator : MonoBehaviour
     private void doorGen(Vector3Int doorPos) {
         //check to see if up,down,left,right contains either a wall tile or a door tile, if it does, generate a wall, if not, generate a door in the prefab
         doorsTotal.Add(doorPos);
-        GameObject door = Instantiate(doorTile, doorPos + Vector3Int.up, Quaternion.identity);
-        tilesTotal.Add(door);
+        tilesTotal.Add(Instantiate(doorTile, doorPos + Vector3Int.up, Quaternion.identity, doorParent));
     }
 
     private void fillDoors() {
-        //Debug.Log("fillDoors is called");
         foreach (var door in doorsTotal) {
-            
             var doorCopy = door + Vector3Int.up;
-            if (floorsTotal.Contains(door + cardinalDirectionsList[0])) {
-                var doorBlock = Instantiate(doorZ, new Vector3(doorCopy.x, doorCopy.y - 0.2f, doorCopy.z + 0.475f), Quaternion.identity);
-                tilesTotal.Add(doorBlock);
-            }
-            else {
-                var wallBlock = Instantiate(wallZ, new Vector3(doorCopy.x, doorCopy.y, doorCopy.z + 0.475f), Quaternion.identity);
-                tilesTotal.Add(wallBlock);
-            }
-            //create door down on Z
-            if (floorsTotal.Contains(door + cardinalDirectionsList[1])) {
-                var doorBlock = Instantiate(doorZ, new Vector3(doorCopy.x, doorCopy.y - 0.2f, doorCopy.z - 0.475f), Quaternion.identity);
-                tilesTotal.Add(doorBlock);
-            }
-            else {
-                var wallBlock = Instantiate(wallZ, new Vector3(doorCopy.x, doorCopy.y, doorCopy.z - 0.475f), Quaternion.identity);
-                tilesTotal.Add(wallBlock);
-            }
-            //create door up on X
-            if (floorsTotal.Contains(door + cardinalDirectionsList[2])) {
-                var doorBlock = Instantiate(doorX, new Vector3(doorCopy.x + 0.475f, doorCopy.y - 0.2f, doorCopy.z), Quaternion.identity);
-                tilesTotal.Add(doorBlock);
-            }
-            else {
-                var wallBlock = Instantiate(wallX, new Vector3(doorCopy.x + 0.475f, doorCopy.y, doorCopy.z), Quaternion.identity);
-                tilesTotal.Add(wallBlock);
-            }
-            //create door down on X
-            if (floorsTotal.Contains(door + cardinalDirectionsList[3])) {
-                var doorBlock = Instantiate(doorX, new Vector3(doorCopy.x - 0.475f, doorCopy.y - 0.2f, doorCopy.z), Quaternion.identity);
-                tilesTotal.Add(doorBlock);
-            }
-            else {
-                var wallBlock = Instantiate(wallX, new Vector3(doorCopy.x - 0.475f, doorCopy.y, doorCopy.z), Quaternion.identity);
-                tilesTotal.Add(wallBlock);
-            }
+
+            // Cache direction checks
+            bool hasUp = floorsTotal.Contains(door + cardinalDirectionsList[0]);
+            bool hasDown = floorsTotal.Contains(door + cardinalDirectionsList[1]);
+            bool hasRight = floorsTotal.Contains(door + cardinalDirectionsList[2]);
+            bool hasLeft = floorsTotal.Contains(door + cardinalDirectionsList[3]);
+
+            // Z-axis (up/down)
+            tilesTotal.Add(Instantiate(
+                hasUp ? doorZ : wallZ,
+                new Vector3(doorCopy.x, hasUp ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z + 0.475f),
+                Quaternion.identity, doorParent));
+
+            tilesTotal.Add(Instantiate(
+                hasDown ? doorZ : wallZ,
+                new Vector3(doorCopy.x, hasDown ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z - 0.475f),
+                Quaternion.identity, doorParent));
+
+            // X-axis (right/left)
+            tilesTotal.Add(Instantiate(
+                hasRight ? doorX : wallX,
+                new Vector3(doorCopy.x + 0.475f, hasRight ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z),
+                Quaternion.identity, doorParent));
+
+            tilesTotal.Add(Instantiate(
+                hasLeft ? doorX : wallX,
+                new Vector3(doorCopy.x - 0.475f, hasLeft ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z),
+                Quaternion.identity, doorParent));
         }
     }
     private void starterGen(GameObject tile) {
@@ -198,10 +191,13 @@ public class DungeonGenerator : MonoBehaviour
             }
         }
         doorGen(new Vector3Int(3, 0, 0));
+        doorGen(new Vector3Int(-3, 0, 0));
         doorGen(new Vector3Int(0, 0, 3));
         doorGen(new Vector3Int(0, 0, -3));
 
+
         roomGen(1, new Vector3Int(4, 0, 0));
+        roomGen(1, new Vector3Int(-4, 0, 0));
         roomGen(1, new Vector3Int(0, 0, 4));
         roomGen(1, new Vector3Int(0, 0, -4));
         visited.UnionWith(floorPos);

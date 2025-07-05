@@ -7,7 +7,7 @@ public static class RandomWalk {
     public static Vector3Int startReal;
     public static Vector3Int prevMove;
 
-    public static List<Vector3Int> cardinalDirectionsList = new List<Vector3Int>()
+    public static readonly Vector3Int[] cardinalDirectionsArray = new Vector3Int[]
     {
         new Vector3Int(0,0,1), //UP
         new Vector3Int(0,0,-1), //DOWN
@@ -19,15 +19,14 @@ public static class RandomWalk {
 
         int attempts1 = 0;
         //if start pos is in a taken space, move up, down, right, or left until you reach a free space.
-        while ((walkedSet.Contains(startPos) || Mathf.Abs(startPos.x) <= 3 && Mathf.Abs(startPos.z) <= 3) && attempts1 < 100) {
-            //Debug.Log("Started in a taken space");
-            Vector3Int shift = cardinalDirectionsList[Random.Range(0, 3)];
+        while ((walkedSet.Contains(startPos) || (Mathf.Abs(startPos.x) <= 3 && Mathf.Abs(startPos.z) <= 3)) && attempts1 < 1000) {
+            Vector3Int shift = cardinalDirectionsArray[Random.Range(0, 4)]; // Use array length
             startPos += shift;
             prevMove = shift;
             attempts1++;
         }
 
-        if(attempts1 >= 100) {
+        if (attempts1 >= 1000) {
             return floorPos;
         }
         floorPos.Add(startPos);
@@ -41,7 +40,7 @@ public static class RandomWalk {
             int attempts = 0;
             Vector3Int newPos;
             do {
-                Vector3Int direction = cardinalDirectionsList[Random.Range(0, cardinalDirectionsList.Count)];
+                Vector3Int direction = cardinalDirectionsArray[Random.Range(0, cardinalDirectionsArray.Length)];
                 newPos = prevPos + direction;
                 attempts++;
             } while ((walkedSet.Contains(newPos) || Mathf.Abs(newPos.x - startPos.x) > maxLen || Mathf.Abs(newPos.z - startPos.z) > maxLen || Mathf.Abs(newPos.x) <= 3 && Mathf.Abs(newPos.z) <= 3) && attempts < 100);
