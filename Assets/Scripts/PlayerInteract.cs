@@ -47,11 +47,19 @@ public class PlayerInteract : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.F)) {
                 holdingItem = true;
-                hit.transform.position = handPos.position;
-                hit.transform.parent = handPos;
-                hit.transform.GetComponent<Rigidbody>().isKinematic = true;
-                hit.transform.GetComponent<Rigidbody>().detectCollisions = false;
                 heldItem = hit.transform.gameObject;
+
+                // Parent the item to the hand
+                heldItem.transform.SetParent(handPos);
+                heldItem.transform.localPosition = Vector3.zero;
+
+                // Set a consistent local rotation for how it appears in front of the player
+                heldItem.transform.localRotation = Quaternion.Euler(-90f, 0f, 90f); // Adjust this as needed
+
+                // Disable physics
+                Rigidbody rb = heldItem.GetComponent<Rigidbody>();
+                rb.isKinematic = true;
+                rb.detectCollisions = false;
             }
         }
     }
@@ -62,5 +70,9 @@ public class PlayerInteract : MonoBehaviour
             heldItem.transform.GetComponent<Rigidbody>().isKinematic = false;
             heldItem.transform.GetComponent<Rigidbody>().detectCollisions = true;
         }
+    }
+
+    private float rotateItem() {
+        return playerCam.transform.rotation.y;
     }
 }
