@@ -18,6 +18,8 @@ public class PlayerInteract : MonoBehaviour
 
     private Ray ray;
 
+    public DoorInteract DoorInteract;
+
     private void Update() {
         checkLookingDoor();
         checkLookingItem();
@@ -32,12 +34,9 @@ public class PlayerInteract : MonoBehaviour
         if (!lookingAt) return;
 
         Transform doorTrigger = hit.collider.transform;
-        Transform door = doorTrigger.GetChild(0);
 
         if (Input.GetKeyDown(KeyCode.F)) {
-            bool doorIsActive = door.gameObject.activeSelf;
-            door.gameObject.SetActive(!doorIsActive);
-            doorTrigger.GetComponent<Collider>().isTrigger = doorIsActive;
+            DoorInteract.toggleDoor(doorTrigger);
         }
     }
     private void checkLookingItem() {

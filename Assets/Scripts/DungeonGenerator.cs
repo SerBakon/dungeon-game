@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private bool roof = true;
 
     [SerializeField] private GameObject floorTile;
+    [SerializeField] private GameObject roofTile;
     [SerializeField] private GameObject starterTile;
     [SerializeField] private GameObject wallTile;
     [SerializeField] private GameObject doorTile;
@@ -34,6 +36,8 @@ public class DungeonGenerator : MonoBehaviour
     private HashSet<Vector3Int> floorsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> starterWallTotal = new HashSet<Vector3Int>();
 
+    private BuildNavMesh buildNavMesh;
+
     public static readonly Vector3Int[] cardinalDirectionsList = new Vector3Int[]
     {
         new Vector3Int(0,0,1), //UP
@@ -45,7 +49,9 @@ public class DungeonGenerator : MonoBehaviour
     void Start()
     {
         //Application.targetFrameRate = 500;
+        buildNavMesh = GetComponent<BuildNavMesh>();
         generate();
+        buildNavMesh.buildMesh();
     }
 
     public void generate() {
@@ -139,7 +145,7 @@ public class DungeonGenerator : MonoBehaviour
             //generates floor
             tileGen(floorTile, floorPos);
             //generates roof
-            roofGen(floorTile, floorPos);
+            roofGen(roofTile, floorPos);
             //generates wall
             wallGen(floorPos);
         }
@@ -203,7 +209,7 @@ public class DungeonGenerator : MonoBehaviour
         visited.UnionWith(floorPos);
         floorsTotal.UnionWith(floorPos);
         tileGen(tile, floorPos);
-        roofGen(tile, floorPos);
+        roofGen(roofTile, floorPos);
     }
 
     private void wallGen(HashSet<Vector3Int> floorPos) {
