@@ -70,8 +70,4 @@ public class PlayerInteract : MonoBehaviour
             heldItem.transform.GetComponent<Rigidbody>().detectCollisions = true;
         }
     }
-
-    private float rotateItem() {
-        return playerCam.transform.rotation.y;
-    }
 }

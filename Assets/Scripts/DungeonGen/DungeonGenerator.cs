@@ -8,11 +8,14 @@ using UnityEngine.UI;
 public class DungeonGenerator : MonoBehaviour
 {
     //[SerializeField] private Vector3Int startPos = Vector3Int.zero;
+    [Header("RoomEdits")]
     [SerializeField] private int walkLength = 10;
     [SerializeField] private int numRooms = 10;
     [SerializeField] private int roomSize = 10;
+    [SerializeField] private int numEnemies = 5;
     [SerializeField] private bool roof = true;
 
+    [Header("GameObjects")]
     [SerializeField] private GameObject floorTile;
     [SerializeField] private GameObject roofTile;
     [SerializeField] private GameObject starterTile;
@@ -22,7 +25,9 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject doorZ;
     [SerializeField] private GameObject wallX;
     [SerializeField] private GameObject wallZ;
+    [SerializeField] private GameObject enemy;
 
+    [Header("Transforms")]
     public Transform wallParent;
     public Transform floorParent;
     public Transform roofParent;
@@ -35,6 +40,7 @@ public class DungeonGenerator : MonoBehaviour
     private HashSet<Vector3Int> doorsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> floorsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> starterWallTotal = new HashSet<Vector3Int>();
+    private HashSet<Vector3Int> starterFloorTotal = new HashSet<Vector3Int>();
 
     private BuildNavMesh buildNavMesh;
 
@@ -48,10 +54,11 @@ public class DungeonGenerator : MonoBehaviour
 
     void Start()
     {
-        //Application.targetFrameRate = 500;
+        Application.targetFrameRate = 100;
         buildNavMesh = GetComponent<BuildNavMesh>();
         generate();
         buildNavMesh.buildMesh();
+        generateEnemies();
     }
 
     public void generate() {
@@ -208,6 +215,7 @@ public class DungeonGenerator : MonoBehaviour
         roomGen(1, new Vector3Int(0, 0, -4));
         visited.UnionWith(floorPos);
         floorsTotal.UnionWith(floorPos);
+        starterFloorTotal.UnionWith(floorPos);
         tileGen(tile, floorPos);
         roofGen(roofTile, floorPos);
     }
@@ -227,4 +235,12 @@ public class DungeonGenerator : MonoBehaviour
         //wallsTotal.UnionWith(wallPos);
     }
 
+    private void generateEnemies() {
+        for (int i = 0; i < numEnemies; i++) {
+            Debug.Log("generating enemies");
+            var randomCoordinate = floorsTotal.ElementAt(Random.Range(0, floorsTotal.Count));
+            if(!starterFloorTotal.Contains(randomCoordinate)) 
+                tilesTotal.Add(Instantiate(enemy, randomCoordinate, Quaternion.identity));
+        }
+    }
 }
