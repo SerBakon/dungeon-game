@@ -19,6 +19,7 @@ public class PlayerInteract : MonoBehaviour
     private Ray ray;
 
     public DoorInteract DoorInteract;
+    public SliderController healthBar;
 
     private void Update() {
         checkLookingDoor();
@@ -26,6 +27,9 @@ public class PlayerInteract : MonoBehaviour
         drop();
 
         ray = playerCam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
+        if(healthBar.HP <= 0) {
+            death();
+        }
     }
 
     private void checkLookingDoor() {
@@ -69,5 +73,9 @@ public class PlayerInteract : MonoBehaviour
             heldItem.transform.GetComponent<Rigidbody>().isKinematic = false;
             heldItem.transform.GetComponent<Rigidbody>().detectCollisions = true;
         }
+    }
+
+    private void death() {
+        transform.gameObject.SetActive(false);
     }
 }
