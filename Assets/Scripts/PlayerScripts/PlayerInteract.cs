@@ -20,6 +20,7 @@ public class PlayerInteract : MonoBehaviour
 
     public DoorInteract DoorInteract;
     public SliderController healthBar;
+    public MouseLook camControl;
 
     private void Update() {
         checkLookingDoor();
@@ -76,6 +77,7 @@ public class PlayerInteract : MonoBehaviour
     }
 
     private void death() {
-        transform.gameObject.SetActive(false);
+        transform.gameObject.GetComponent<PlayerMovement>().enabled = false;
+        camControl.enabled = false;
     }
 }

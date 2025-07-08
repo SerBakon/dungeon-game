@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class SliderController : MonoBehaviour
 {
     public Slider slider;
-    public float maxHP = 100;
+    public float maxHP = 10;
 
     public float HP;
 
@@ -12,6 +12,7 @@ public class SliderController : MonoBehaviour
     void Start()
     {
         HP = maxHP;
+        slider.maxValue = maxHP;
     }
 
     // Update is called once per frame
