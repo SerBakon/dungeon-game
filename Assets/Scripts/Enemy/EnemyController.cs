@@ -5,6 +5,8 @@ using UnityEngine.AI;
 public class EnemyController : MonoBehaviour {
     private NavMeshAgent agent;
 
+    [SerializeField] private float attackDamage = 10f;
+
     [SerializeField] private Transform center;
     [SerializeField] private LayerMask doorLayer;
     [SerializeField] private LayerMask playerLayer;
@@ -13,13 +15,14 @@ public class EnemyController : MonoBehaviour {
     [SerializeField] private float initialDelay = 10f;
     [SerializeField] private float updateInterval = 10f;
     [SerializeField] private float trackingDuration = 5f;
-    [SerializeField] private float attackTime = .5f;
+    [SerializeField] private float attackTime = 2f;
 
     [Header("Script References")]
     [SerializeField] private DoorInteract doorInteract;
     [SerializeField] private SliderController healthBar;
 
     private float stateTimer = 0f;
+    private float attackCooldown = 0f;
     private enum TrackingState { Waiting, Cooldown, Tracking, Hunting }
     private TrackingState currentState;
     private bool setSpeed = false;
@@ -35,6 +38,7 @@ public class EnemyController : MonoBehaviour {
         nearDoor();
         checkPlayer();
         stateTimer += Time.deltaTime;
+        attackCooldown += Time.deltaTime;
 
         switch (currentState) {
             case TrackingState.Waiting:
@@ -127,9 +131,11 @@ public class EnemyController : MonoBehaviour {
         }
 
         // Check for players in attack range
-        Collider[] attackRange = Physics.OverlapBox(transform.position, new Vector3(.25f, 1, .25f), transform.rotation, playerLayer);
-        if (currentState.Equals(TrackingState.Hunting) && attackRange.Length > 0) {
-
+        Collider[] attackRange = Physics.OverlapBox(transform.position, new Vector3(.5f, 1, .5f), transform.rotation, playerLayer);
+        if (currentState.Equals(TrackingState.Hunting) && attackRange.Length > 0 && attackCooldown >= attackTime) {
+            Debug.Log("Player in attack Range");
+            healthBar.takeDamage(attackDamage);
+            attackCooldown = 0;
         }
     }
 

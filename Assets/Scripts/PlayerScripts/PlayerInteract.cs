@@ -42,7 +42,7 @@ public class PlayerInteract : MonoBehaviour
     private void checkLookingItem() {
         Debug.DrawRay(ray.origin, ray.direction * 1.5f, Color.red);
         if (Physics.Raycast(ray, out RaycastHit hit, 1.5f, itemLayer)) {
-            Debug.Log("Looking at item");
+            //Debug.Log("Looking at item");
 
             if (Input.GetKeyDown(KeyCode.F)) {
                 holdingItem = true;
