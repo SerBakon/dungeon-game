@@ -76,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
             speed = sprintSpeed;
         else
             speed = normalSpeed;
-            staminaSlider.sprinting = true;
+        staminaSlider.sprinting = true;
         
     }
 
@@ -87,7 +87,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool checkSprint() {
         if (staminaSlider.stamina <= 0 && staminaSlider.sprinting) {
-            Debug.Log("cannot sprint anymore");
+            //Debug.Log("cannot sprint anymore");
             staminaSlider.stamina = -1;
             speed = normalSpeed;
             return false;

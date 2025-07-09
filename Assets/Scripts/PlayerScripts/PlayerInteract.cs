@@ -1,8 +1,11 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
 {
     [SerializeField] private Camera playerCam;
+    [SerializeField] private GameObject openDoorText;
+    [SerializeField] private GameObject closeDoorText;
 
     //[SerializeField] private Transform eyePos;
     [SerializeField] private Transform handPos;
@@ -13,14 +16,16 @@ public class PlayerInteract : MonoBehaviour
 
     private bool lookingAt;
     private bool holdingItem = false;
+    private bool justToggled = false;
 
     private GameObject heldItem;
 
     private Ray ray;
 
-    public DoorInteract DoorInteract;
-    public SliderController healthBar;
-    public MouseLook camControl;
+    [SerializeField] private DoorInteract DoorInteract;
+    [SerializeField] private SliderController healthBar;
+    [SerializeField] private MouseLook camControl;
+    [SerializeField] private ProgressBarController progressBar;
 
     private void Update() {
         checkLookingDoor();
@@ -36,12 +41,42 @@ public class PlayerInteract : MonoBehaviour
     private void checkLookingDoor() {
         lookingAt = Physics.Raycast(ray, out RaycastHit hit, 1f, doorLayer);
 
-        if (!lookingAt) return;
-
+        if (!lookingAt) {
+            openDoorText.SetActive(false);
+            return;
+        }
         Transform doorTrigger = hit.collider.transform;
+        var doorMesh = doorTrigger.GetChild(0).gameObject;
+        if (lookingAt && doorMesh.activeSelf) {
+            closeDoorText.SetActive(false);
+            openDoorText.SetActive(true);
+        } else {
+            closeDoorText.SetActive(true);
+            openDoorText.SetActive(false);
+        }
+        if (Input.GetKey(KeyCode.F)) {
+            if (doorMesh.activeSelf) {
+                progressBar.gameObject.SetActive(true);
+                if (progressBar.increaseProgress() && !justToggled) {
+                    DoorInteract.toggleDoor(doorTrigger);
+                    justToggled = true;
+                    StartCoroutine(ResetToggleFlag());
+                }
+            }
+            else {
+                if (!justToggled) {
+                    DoorInteract.toggleDoor(doorTrigger);
+                    progressBar.gameObject.SetActive(false);
+                    justToggled = true;
+                    StartCoroutine(ResetToggleFlag());
+                }
 
-        if (Input.GetKeyDown(KeyCode.F)) {
-            DoorInteract.toggleDoor(doorTrigger);
+            }
+
+        }
+        else {
+            progressBar.progress = 0;
+            progressBar.gameObject.SetActive(false);
         }
     }
     private void checkLookingItem() {
@@ -79,5 +114,9 @@ public class PlayerInteract : MonoBehaviour
     private void death() {
         transform.gameObject.GetComponent<PlayerMovement>().enabled = false;
         camControl.enabled = false;
+    }
+    private IEnumerator ResetToggleFlag() {
+        yield return new WaitForSeconds(0.5f); // Adjust time as needed
+        justToggled = false;
     }
 }

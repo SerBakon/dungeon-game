@@ -14,6 +14,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private int roomSize = 10;
     [SerializeField] private int numEnemies = 5;
     [SerializeField] private bool roof = true;
+    [SerializeField] private float enemySpawnRates = 300f;
 
     [Header("GameObjects")]
     [SerializeField] private GameObject floorTile;
@@ -32,6 +33,7 @@ public class DungeonGenerator : MonoBehaviour
     public Transform floorParent;
     public Transform roofParent;
     public Transform doorParent;
+    public Transform enemyParent;
 
     private HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
     private HashSet<GameObject> tilesTotal = new HashSet<GameObject>();
@@ -43,6 +45,8 @@ public class DungeonGenerator : MonoBehaviour
     private HashSet<Vector3Int> starterFloorTotal = new HashSet<Vector3Int>();
 
     private BuildNavMesh buildNavMesh;
+
+    private float timer;
 
     public static readonly Vector3Int[] cardinalDirectionsList = new Vector3Int[]
     {
@@ -59,6 +63,14 @@ public class DungeonGenerator : MonoBehaviour
         generate();
         buildNavMesh.buildMesh();
         generateEnemies();
+    }
+
+    private void Update() {
+        timer += Time.deltaTime;
+        if(timer >= enemySpawnRates) {
+            timer = 0;
+            generateEnemies();
+        }
     }
 
     public void generate() {
@@ -237,10 +249,10 @@ public class DungeonGenerator : MonoBehaviour
 
     private void generateEnemies() {
         for (int i = 0; i < numEnemies; i++) {
-            Debug.Log("generating enemies");
+            //Debug.Log("generating enemies");
             var randomCoordinate = floorsTotal.ElementAt(Random.Range(0, floorsTotal.Count));
             if(!starterFloorTotal.Contains(randomCoordinate)) 
-                tilesTotal.Add(Instantiate(enemy, randomCoordinate, Quaternion.identity));
+                tilesTotal.Add(Instantiate(enemy, randomCoordinate, Quaternion.identity, enemyParent));
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
@@ -27,6 +28,8 @@ public class EnemyController : MonoBehaviour {
     private TrackingState currentState;
     private bool setSpeed = false;
     private Transform currentTarget;
+    private Vector3 savedDestination; // Store the original destination
+    private bool isHandlingDoor = false; // Flag to check if currently handling a door
 
     private void Start() {
         agent = GetComponent<NavMeshAgent>();
@@ -99,7 +102,7 @@ public class EnemyController : MonoBehaviour {
         // Update target in case a closer player appears
         currentTarget = GetClosestPlayer();
 
-        if (currentTarget != null) {
+        if (currentTarget != null && !isHandlingDoor) {
             agent.SetDestination(currentTarget.position);
             if (!setSpeed) {
                 agent.speed *= 3f;
@@ -116,9 +119,31 @@ public class EnemyController : MonoBehaviour {
         foreach (Collider collider in nearDoors) {
             Transform doorTrigger = collider.transform;
             if (doorTrigger.GetChild(0).gameObject.activeSelf) {
-                doorInteract.toggleDoor(doorTrigger);
+                // Save current destination and stop the agent
+                savedDestination = agent.destination;
+                agent.isStopped = true;
+                isHandlingDoor = true;
+                //agent.ResetPath();
+
+                StartCoroutine(DelayedToggleDoor(doorTrigger));
+                break; // Only handle one door at a time
             }
         }
+    }
+
+    private IEnumerator DelayedToggleDoor(Transform doorTrigger) {
+        yield return new WaitForSeconds(.5f);
+        doorInteract.openDoor(doorTrigger);
+
+        // Wait a bit longer to ensure the door has opened
+        yield return new WaitForSeconds(0.5f);
+
+        // Resume movement to original destination
+        agent.isStopped = false;
+        if (currentState == TrackingState.Hunting || currentState == TrackingState.Tracking) {
+            agent.SetDestination(savedDestination);
+        }
+        isHandlingDoor = false;
     }
 
     private void checkPlayer() {
