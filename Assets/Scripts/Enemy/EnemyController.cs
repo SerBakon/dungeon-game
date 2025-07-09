@@ -31,6 +31,8 @@ public class EnemyController : MonoBehaviour {
     private Vector3 savedDestination; // Store the original destination
     private bool isHandlingDoor = false; // Flag to check if currently handling a door
 
+    private Vector3 doorCheckSize = new Vector3(.25f, .25f, .5f);
+
     private void Start() {
         agent = GetComponent<NavMeshAgent>();
         currentState = TrackingState.Waiting;
@@ -114,7 +116,7 @@ public class EnemyController : MonoBehaviour {
     }
 
     private void nearDoor() {
-        Collider[] nearDoors = Physics.OverlapBox(transform.position, new Vector3(.25f, .25f, .25f), transform.rotation, doorLayer);
+        Collider[] nearDoors = Physics.OverlapBox(transform.position, doorCheckSize, transform.rotation, doorLayer);
 
         foreach (Collider collider in nearDoors) {
             Transform doorTrigger = collider.transform;
@@ -174,7 +176,7 @@ public class EnemyController : MonoBehaviour {
         }
         Gizmos.DrawWireSphere(transform.position, 1f);
 
-        Vector3 size = new Vector3(0.25f, .25f, 0.25f);
+        Vector3 size = doorCheckSize;
         Gizmos.color = Color.cyan;
         Matrix4x4 originalMatrix = Gizmos.matrix;
         Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);

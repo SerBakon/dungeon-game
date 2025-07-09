@@ -4024,7 +4024,7 @@ MonoBehaviour:
   floorParent: {fileID: 1724886705}
   roofParent: {fileID: 773598246}
   doorParent: {fileID: 29454604}
-  enemyParent: {fileID: 0}
+  enemyParent: {fileID: 1441892381}
 --- !u!4 &1486780055
 Transform:
   m_ObjectHideFlags: 0
