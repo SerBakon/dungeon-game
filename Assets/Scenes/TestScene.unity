@@ -505,7 +505,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 579d167621596b0419dc2ebf58efe561, type: 2}
+  - {fileID: 2100000, guid: 9607862bf90553342b6c7a1e3d273805, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2705,7 +2705,7 @@ GameObject:
   - component: {fileID: 1071526525}
   - component: {fileID: 1071526524}
   - component: {fileID: 1071526527}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DoorFloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
