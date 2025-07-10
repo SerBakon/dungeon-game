@@ -188,23 +188,23 @@ public class DungeonGenerator : MonoBehaviour
             // Z-axis (up/down)
             tilesTotal.Add(Instantiate(
                 hasUp ? doorZ : wallZ,
-                new Vector3(doorCopy.x, hasUp ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z + 0.475f),
+                new Vector3(doorCopy.x, hasUp ? doorCopy.y : doorCopy.y, doorCopy.z + 0.475f),
                 Quaternion.identity, doorParent));
 
             tilesTotal.Add(Instantiate(
                 hasDown ? doorZ : wallZ,
-                new Vector3(doorCopy.x, hasDown ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z - 0.475f),
+                new Vector3(doorCopy.x, hasDown ? doorCopy.y : doorCopy.y, doorCopy.z - 0.475f),
                 Quaternion.identity, doorParent));
 
             // X-axis (right/left)
             tilesTotal.Add(Instantiate(
                 hasRight ? doorX : wallX,
-                new Vector3(doorCopy.x + 0.475f, hasRight ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z),
+                new Vector3(doorCopy.x + 0.475f, hasRight ? doorCopy.y : doorCopy.y, doorCopy.z),
                 Quaternion.identity, doorParent));
 
             tilesTotal.Add(Instantiate(
                 hasLeft ? doorX : wallX,
-                new Vector3(doorCopy.x - 0.475f, hasLeft ? doorCopy.y - 0.2f : doorCopy.y, doorCopy.z),
+                new Vector3(doorCopy.x - 0.475f, hasLeft ? doorCopy.y : doorCopy.y, doorCopy.z),
                 Quaternion.identity, doorParent));
         }
     }

@@ -43,6 +43,7 @@ public class PlayerInteract : MonoBehaviour
 
         if (!lookingAt) {
             openDoorText.SetActive(false);
+            closeDoorText.SetActive(false);
             return;
         }
         Transform doorTrigger = hit.collider.transform;
@@ -55,9 +56,9 @@ public class PlayerInteract : MonoBehaviour
             openDoorText.SetActive(false);
         }
         if (Input.GetKey(KeyCode.F)) {
-            if (doorMesh.activeSelf) {
+            if (doorMesh.activeSelf && !justToggled) {
                 progressBar.gameObject.SetActive(true);
-                if (progressBar.increaseProgress() && !justToggled) {
+                if (progressBar.increaseProgress()) {
                     DoorInteract.toggleDoor(doorTrigger);
                     justToggled = true;
                     StartCoroutine(ResetToggleFlag());
@@ -113,6 +114,7 @@ public class PlayerInteract : MonoBehaviour
 
     private void death() {
         transform.gameObject.GetComponent<PlayerMovement>().enabled = false;
+        transform.gameObject.GetComponent<PlayerInteract>().enabled = false;
         camControl.enabled = false;
     }
     private IEnumerator ResetToggleFlag() {
