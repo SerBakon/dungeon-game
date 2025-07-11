@@ -15,10 +15,10 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] private LayerMask itemLayer;
 
     private bool lookingAt;
-    private bool holdingItem = false;
+    public bool holdingItem = false;
     private bool justToggled = false;
 
-    private GameObject heldItem;
+    public GameObject heldItem;
 
     private Ray ray;
 
@@ -26,6 +26,7 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] private SliderController healthBar;
     [SerializeField] private MouseLook camControl;
     [SerializeField] private ProgressBarController progressBar;
+    [SerializeField] private InventoryManager inventoryManager;
 
     private void Update() {
         checkLookingDoor();
@@ -86,30 +87,45 @@ public class PlayerInteract : MonoBehaviour
             //Debug.Log("Looking at item");
 
             if (Input.GetKeyDown(KeyCode.F)) {
-                holdingItem = true;
-                heldItem = hit.transform.gameObject;
-
-                // Parent the item to the hand
-                heldItem.transform.SetParent(handPos);
-                heldItem.transform.localPosition = Vector3.zero;
-
-                // Set a consistent local rotation for how it appears in front of the player
-                heldItem.transform.localRotation = Quaternion.Euler(-90f, 0f, 90f); // Adjust this as needed
-
-                // Disable physics
-                Rigidbody rb = heldItem.GetComponent<Rigidbody>();
-                rb.isKinematic = true;
-                rb.detectCollisions = false;
+                //pickUpItem(hit.transform.gameObject);
+                hit.transform.gameObject.SetActive(false);
+                inventoryManager.numObject3++;
+                if(inventoryManager.numObject3 == 0) {
+                    inventoryManager.cloneDonute();
+                }
             }
         }
     }
 
+    public void pickUpItem(GameObject heldItem) {
+        holdingItem = true;
+        this.heldItem = heldItem;
+
+        // Parent the item to the hand
+        heldItem.transform.SetParent(handPos);
+        heldItem.transform.localPosition = Vector3.zero;
+
+        // Set a consistent local rotation for how it appears in front of the player
+        heldItem.transform.localRotation = Quaternion.Euler(-90f, 0f, 90f); // Adjust this as needed
+
+        // Disable physics
+        Rigidbody rb = heldItem.GetComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.detectCollisions = false;
+    }
+
     private void drop() {
-        if (holdingItem && Input.GetKey(KeyCode.G)) {
+        if (holdingItem && Input.GetKeyDown(KeyCode.G) && inventoryManager.numObject3 > 0) {
+            heldItem.SetActive(true);
             heldItem.transform.parent = groundItems;
             heldItem.transform.GetComponent<Rigidbody>().isKinematic = false;
             heldItem.transform.GetComponent<Rigidbody>().detectCollisions = true;
+            inventoryManager.numObject3--;
+            if (inventoryManager.numObject3 > 0) {
+                inventoryManager.selectThirdSlot();
+            }
         }
+        
     }
 
     private void death() {
