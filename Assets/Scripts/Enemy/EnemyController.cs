@@ -8,7 +8,7 @@ public class EnemyController : MonoBehaviour {
 
     [SerializeField] private float attackDamage = 10f;
 
-    [SerializeField] private Transform center;
+    //[SerializeField] private Transform center;
     [SerializeField] private LayerMask doorLayer;
     [SerializeField] private LayerMask playerLayer;
 
@@ -22,11 +22,15 @@ public class EnemyController : MonoBehaviour {
     [SerializeField] private DoorInteract doorInteract;
     [SerializeField] private SliderController healthBar;
 
+    [Header("Animations")]
+    [SerializeField] private Animator animator;
+
     private float stateTimer = 0f;
     private float attackCooldown = 0f;
     private enum TrackingState { Waiting, Cooldown, Tracking, Hunting }
     private TrackingState currentState;
     private bool setSpeed = false;
+    private bool attacking = false;
     private Transform currentTarget;
     private Vector3 savedDestination; // Store the original destination
     private bool isHandlingDoor = false; // Flag to check if currently handling a door
@@ -47,18 +51,21 @@ public class EnemyController : MonoBehaviour {
 
         switch (currentState) {
             case TrackingState.Waiting:
+                setIdle();
                 if (stateTimer >= initialDelay) {
                     StartTracking();
                 }
                 break;
 
             case TrackingState.Cooldown:
+                setIdle();
                 if (stateTimer >= updateInterval) {
                     StartTracking();
                 }
                 break;
 
             case TrackingState.Tracking:
+                setTracking();
                 if (stateTimer >= trackingDuration) {
                     StopTracking();
                 }
@@ -113,6 +120,7 @@ public class EnemyController : MonoBehaviour {
         }
 
         currentState = TrackingState.Hunting;
+        setHunting();
     }
 
     private void nearDoor() {
@@ -160,10 +168,46 @@ public class EnemyController : MonoBehaviour {
         // Check for players in attack range
         Collider[] attackRange = Physics.OverlapBox(transform.position, new Vector3(.5f, 1, .5f), transform.rotation, playerLayer);
         if (currentState.Equals(TrackingState.Hunting) && attackRange.Length > 0 && attackCooldown >= attackTime) {
-            Debug.Log("Player in attack Range");
+            Debug.Log("Attacking");
+            setAttacking();
             healthBar.takeDamage(attackDamage);
             attackCooldown = 0;
         }
+        if(attackRange.Length == 0) {
+            attacking = false;
+        }
+    }
+
+    private void setIdle() {
+        animator.SetBool("Idle", true);
+        animator.SetBool("Hunting", false);
+        animator.SetBool("Attack", false);
+        animator.SetBool("Tracking", false);
+    }
+    private void setTracking() {
+        //Debug.Log("Animation: Tracking");
+        animator.SetBool("Idle", false);
+        animator.SetBool("Hunting", false);
+        animator.SetBool("Attack", false);
+        animator.SetBool("Tracking", true);
+    }
+
+    private void setHunting() {
+        if (!attacking) {
+            Debug.Log("Animation: Hunting");
+            animator.SetBool("Idle", false);
+            animator.SetBool("Hunting", true);
+            animator.SetBool("Attack", false);
+            animator.SetBool("Tracking", false);
+        }
+    }
+    private void setAttacking() {
+        attacking = true;
+        animator.SetBool("Idle", false);
+        animator.SetBool("Hunting", false);
+        animator.SetBool("Attack", true);
+        animator.SetBool("Tracking", false);
+        //Debug.Log("Animation: Attack");
     }
 
     // Visual feedback in Scene view
