@@ -8,8 +8,8 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private GameObject select2;
     [SerializeField] private GameObject select3;
 
-    [SerializeField] private GameObject object1;
-    [SerializeField] private GameObject object2;
+    [SerializeField] private GameObject flashLight;
+    [SerializeField] private GameObject gun;
     [SerializeField] private GameObject object3;
 
     [SerializeField] private TextMeshProUGUI numItems;
@@ -17,11 +17,13 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private PlayerInteract playerInteract;
 
     public int numObject3;
-    private bool holdingDonut;
+    public bool holdingDonut;
+
+    private bool selectingThird = false;
     void Start()
     {
         selectFirstSlot();
-        numObject3 = 0;
+        numObject3 = 3;
         holdingDonut = false;
     }
 
@@ -33,12 +35,15 @@ public class InventoryManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             selectFirstSlot();
+            selectingThird = false;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2)) {
             selectSecondSlot();
+            selectingThird = false;
         }
         if (Input.GetKeyDown(KeyCode.Alpha3) && numObject3 > 0) {
             selectThirdSlot();
+            selectingThird = true;
         }
     }
 
@@ -47,6 +52,7 @@ public class InventoryManager : MonoBehaviour
         select2.SetActive(false);
         select3.SetActive(false);
 
+        flashLight.SetActive(false);
         holdingDonut = false;
     }
     private void selectSecondSlot() {
@@ -54,6 +60,7 @@ public class InventoryManager : MonoBehaviour
         select2.SetActive(true);
         select3.SetActive(false);
 
+        flashLight.SetActive(true);
         holdingDonut = false;
     }
     public void selectThirdSlot() {
@@ -61,21 +68,26 @@ public class InventoryManager : MonoBehaviour
         select2.SetActive(false);
         select3.SetActive(true);
 
+        flashLight.SetActive(false);
+
         holdingDonut = true;
 
         object3.SetActive(true);
 
-        cloneDonute();
+        //cloneDonute();
     }
 
     private void checkDonuts() {
-        if (numObject3 == 0) {
+        if (numObject3 == 0 && selectingThird) {
             object3.SetActive(false);
             selectFirstSlot();
             playerInteract.holdingItem = false;
         }
         if (numObject3 > 0 && holdingDonut) {
             object3.SetActive(true);
+        }
+        if (!holdingDonut) {
+            object3.SetActive(false);
         }
     }
 

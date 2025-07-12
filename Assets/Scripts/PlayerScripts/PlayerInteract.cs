@@ -6,6 +6,7 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] private Camera playerCam;
     [SerializeField] private GameObject openDoorText;
     [SerializeField] private GameObject closeDoorText;
+    [SerializeField] private GameObject pickUpItemText;
 
     //[SerializeField] private Transform eyePos;
     [SerializeField] private Transform handPos;
@@ -85,6 +86,7 @@ public class PlayerInteract : MonoBehaviour
         Debug.DrawRay(ray.origin, ray.direction * 1.5f, Color.red);
         if (Physics.Raycast(ray, out RaycastHit hit, 1.5f, itemLayer)) {
             //Debug.Log("Looking at item");
+            pickUpItemText.SetActive(true);
 
             if (Input.GetKeyDown(KeyCode.F)) {
                 //pickUpItem(hit.transform.gameObject);
@@ -94,7 +96,10 @@ public class PlayerInteract : MonoBehaviour
                     inventoryManager.cloneDonute();
                 }
             }
+        } else {
+            pickUpItemText.SetActive(false);
         }
+            
     }
 
     public void pickUpItem(GameObject heldItem) {
@@ -115,11 +120,14 @@ public class PlayerInteract : MonoBehaviour
     }
 
     private void drop() {
-        if (holdingItem && Input.GetKeyDown(KeyCode.G) && inventoryManager.numObject3 > 0) {
+        if (inventoryManager.holdingDonut && Input.GetKeyDown(KeyCode.G) && inventoryManager.numObject3 > 0) {
+            inventoryManager.cloneDonute() ;
             heldItem.SetActive(true);
             heldItem.transform.parent = groundItems;
-            heldItem.transform.GetComponent<Rigidbody>().isKinematic = false;
-            heldItem.transform.GetComponent<Rigidbody>().detectCollisions = true;
+            Rigidbody rb = heldItem.transform.GetComponent<Rigidbody>();
+            rb.isKinematic = false;
+            rb.detectCollisions = true;
+            rb.AddForce(transform.forward);
             inventoryManager.numObject3--;
             if (inventoryManager.numObject3 > 0) {
                 inventoryManager.selectThirdSlot();
