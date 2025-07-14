@@ -27,6 +27,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject wallX;
     [SerializeField] private GameObject wallZ;
     [SerializeField] private GameObject enemy;
+    [SerializeField] private GameObject donut;
 
     [Header("Transforms")]
     public Transform wallParent;
@@ -34,6 +35,7 @@ public class DungeonGenerator : MonoBehaviour
     public Transform roofParent;
     public Transform doorParent;
     public Transform enemyParent;
+    public Transform groundItems;
 
     private HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
     private HashSet<GameObject> tilesTotal = new HashSet<GameObject>();
@@ -159,6 +161,7 @@ public class DungeonGenerator : MonoBehaviour
                     doorGen(doorPos);
                 }
             }
+            generateDonut(floorPos);
             visited.UnionWith(floorPos);
             floorsTotal.UnionWith(floorPos);
             //generates floor
@@ -168,6 +171,13 @@ public class DungeonGenerator : MonoBehaviour
             //generates wall
             wallGen(floorPos);
         }
+    }
+
+    private void generateDonut(HashSet<Vector3Int> positions)
+    {
+        if (donut == null || positions == null || positions.Count == 0) return;
+
+        Instantiate(donut, positions.ElementAt(Random.Range(0, positions.Count)) + Vector3Int.up, Quaternion.Euler(-90f, 0, 0), groundItems);
     }
     private void doorGen(Vector3Int doorPos) {
         //check to see if up,down,left,right contains either a wall tile or a door tile, if it does, generate a wall, if not, generate a door in the prefab

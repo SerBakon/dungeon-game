@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
 {
-    [SerializeField] private Camera playerCam;
+    [SerializeField] public Camera playerCam;
     [SerializeField] private GameObject openDoorText;
     [SerializeField] private GameObject closeDoorText;
     [SerializeField] private GameObject pickUpItemText;
@@ -33,6 +33,7 @@ public class PlayerInteract : MonoBehaviour
         checkLookingDoor();
         checkLookingItem();
         drop();
+        eatDonut();
 
         ray = playerCam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         if(healthBar.HP <= 0) {
@@ -42,17 +43,23 @@ public class PlayerInteract : MonoBehaviour
 
     private void checkLookingDoor() {
         lookingAt = Physics.Raycast(ray, out RaycastHit hit, 1f, doorLayer);
-
         if (!lookingAt) {
             openDoorText.SetActive(false);
             closeDoorText.SetActive(false);
+            
+            progressBar.progress = 0;
             return;
+        } 
+        else
+        {
+            inventoryManager.EatDonutText.SetActive(false);
         }
-        Transform doorTrigger = hit.collider.transform;
+            Transform doorTrigger = hit.collider.transform;
         var doorMesh = doorTrigger.GetChild(0).gameObject;
         if (lookingAt && doorMesh.activeSelf) {
             closeDoorText.SetActive(false);
             openDoorText.SetActive(true);
+            
         } else {
             closeDoorText.SetActive(true);
             openDoorText.SetActive(false);
@@ -87,10 +94,11 @@ public class PlayerInteract : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 1.5f, itemLayer)) {
             //Debug.Log("Looking at item");
             pickUpItemText.SetActive(true);
-
+            inventoryManager.EatDonutText.SetActive(false);
             if (Input.GetKeyDown(KeyCode.F)) {
                 //pickUpItem(hit.transform.gameObject);
-                hit.transform.gameObject.SetActive(false);
+                //hit.transform.gameObject.SetActive(false);
+                Destroy(hit.transform.gameObject);
                 inventoryManager.numObject3++;
                 if(inventoryManager.numObject3 == 0) {
                     inventoryManager.cloneDonute();
@@ -100,6 +108,15 @@ public class PlayerInteract : MonoBehaviour
             pickUpItemText.SetActive(false);
         }
             
+    }
+
+    private void eatDonut()
+    {
+        if (inventoryManager.holdingDonut && Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            inventoryManager.numObject3--;
+            healthBar.HP += 10;
+        }
     }
 
     public void pickUpItem(GameObject heldItem) {

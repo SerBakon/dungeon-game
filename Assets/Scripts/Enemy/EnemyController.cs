@@ -6,8 +6,11 @@ using UnityEngine.AI;
 public class EnemyController : MonoBehaviour {
     private NavMeshAgent agent;
 
+    [Header("Damage + Health")]
     [SerializeField] private float attackDamage = 10f;
+    [SerializeField] private int health = 10;
 
+    [Header("Interactions")]
     //[SerializeField] private Transform center;
     [SerializeField] private LayerMask doorLayer;
     [SerializeField] private LayerMask playerLayer;
@@ -168,10 +171,11 @@ public class EnemyController : MonoBehaviour {
         // Check for players in attack range
         Collider[] attackRange = Physics.OverlapBox(transform.position, new Vector3(.5f, 1, .5f), transform.rotation, playerLayer);
         if (currentState.Equals(TrackingState.Hunting) && attackRange.Length > 0 && attackCooldown >= attackTime) {
-            Debug.Log("Attacking");
+            //Debug.Log("Attacking");
             setAttacking();
-            healthBar.takeDamage(attackDamage);
             attackCooldown = 0;
+            StartCoroutine(damageAfterAnimation());
+            
         }
         if(attackRange.Length == 0) {
             attacking = false;
@@ -194,7 +198,7 @@ public class EnemyController : MonoBehaviour {
 
     private void setHunting() {
         if (!attacking) {
-            Debug.Log("Animation: Hunting");
+            //Debug.Log("Animation: Hunting");
             animator.SetBool("Idle", false);
             animator.SetBool("Hunting", true);
             animator.SetBool("Attack", false);
@@ -208,6 +212,38 @@ public class EnemyController : MonoBehaviour {
         animator.SetBool("Attack", true);
         animator.SetBool("Tracking", false);
         //Debug.Log("Animation: Attack");
+    }
+
+    private void setDead()
+    {
+        animator.SetBool("Idle", false);
+        animator.SetBool("Hunting", false);
+        animator.SetBool("Attack", false);
+        animator.SetBool("Tracking", false);
+        animator.SetBool("Dead", true);
+    }
+    public void takeDamage(int damage)
+    {
+        health -= damage;
+        if (health <= 0)
+        {
+            die();
+            return;
+        }
+        currentState = TrackingState.Hunting;
+        Debug.Log("Take Damage was called for 'Enemy'");
+    }
+
+    public void die()
+    {
+        setDead();
+        agent.speed = 0;
+        Destroy(transform.gameObject, animator.GetCurrentAnimatorStateInfo(0).length + .5f);
+    }
+
+    IEnumerator damageAfterAnimation() {
+        yield return new WaitForSeconds(.5f);
+        healthBar.takeDamage(attackDamage);
     }
 
     // Visual feedback in Scene view

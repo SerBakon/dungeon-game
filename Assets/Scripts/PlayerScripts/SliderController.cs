@@ -21,6 +21,10 @@ public class SliderController : MonoBehaviour
         if (slider.value != HP) {
             slider.value = HP;
         }
+        if (slider.value > maxHP)
+        {
+            slider.value = maxHP;
+        }
     }
 
     public void takeDamage(float damage) {
