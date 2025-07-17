@@ -28,6 +28,9 @@ public class EnemyController : MonoBehaviour {
     [Header("Animations")]
     [SerializeField] private Animator animator;
 
+    [Header("Sounds")]
+    [SerializeField] private AudioSource footstep;
+
     private float stateTimer = 0f;
     private float attackCooldown = 0f;
     private enum TrackingState { Waiting, Cooldown, Tracking, Hunting }
@@ -54,6 +57,7 @@ public class EnemyController : MonoBehaviour {
 
         switch (currentState) {
             case TrackingState.Waiting:
+                endFootstep();
                 setIdle();
                 if (stateTimer >= initialDelay) {
                     StartTracking();
@@ -61,6 +65,7 @@ public class EnemyController : MonoBehaviour {
                 break;
 
             case TrackingState.Cooldown:
+                endFootstep();
                 setIdle();
                 if (stateTimer >= updateInterval) {
                     StartTracking();
@@ -68,6 +73,7 @@ public class EnemyController : MonoBehaviour {
                 break;
 
             case TrackingState.Tracking:
+                playFootstep();
                 setTracking();
                 if (stateTimer >= trackingDuration) {
                     StopTracking();
@@ -75,6 +81,7 @@ public class EnemyController : MonoBehaviour {
                 
                 break;
             case TrackingState.Hunting:
+                playFootstep();
                 beginHunt();
                 break;
         }
@@ -247,6 +254,16 @@ public class EnemyController : MonoBehaviour {
         healthBar.takeDamage(attackDamage);
     }
 
+    private void playFootstep()
+    {
+        footstep.enabled = true;
+        Debug.Log("footstep.enabled = true");
+    }
+
+    private void endFootstep()
+    {
+        footstep.enabled = false;
+    }
     // Visual feedback in Scene view
     private void OnDrawGizmos() {
         switch (currentState) {
