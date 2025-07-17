@@ -72,6 +72,7 @@ public class EnemyController : MonoBehaviour {
                 if (stateTimer >= trackingDuration) {
                     StopTracking();
                 }
+                
                 break;
             case TrackingState.Hunting:
                 beginHunt();

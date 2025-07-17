@@ -14,6 +14,9 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private GameObject gun;
     [SerializeField] private GameObject object3;
 
+    [SerializeField] private AudioClip gunshot;
+    [SerializeField] private AudioSource gunAudio;
+
     [SerializeField] private TextMeshProUGUI numItems;
 
     [SerializeField] private PlayerInteract playerInteract;
@@ -130,6 +133,8 @@ public class InventoryManager : MonoBehaviour
         Vector3 direction = (worldCrosshairPos - gunBarrel.transform.position).normalized;
         Ray bulletRay = playerInteract.playerCam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         bool hitTarget = Physics.Raycast(bulletRay , out hit, 100f, enemy);
+        //gunAudio.clip = gunshot;
+        gunAudio.PlayOneShot(gunshot);
         StartCoroutine(DrawTempRay(direction));
         if (hitTarget) {
             //Debug.Log("hit enemy");

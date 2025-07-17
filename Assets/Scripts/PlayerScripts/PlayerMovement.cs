@@ -6,6 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private CharacterController characterController;
     [SerializeField] private StaminaSlider staminaSlider;
+    [SerializeField] private AudioSource footstep;
+    [SerializeField] private AudioClip footstepSound;
 
     [SerializeField] private float speed = 1.5f;
     [SerializeField] private float gravity = -9.81f;
@@ -69,6 +71,14 @@ public class PlayerMovement : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
 
         characterController.Move(velocity * Time.deltaTime);
+
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
+        {
+            playsound();
+        } else
+        {
+            endSound();
+        }
     }
 
     private void startSprint() {
@@ -93,5 +103,13 @@ public class PlayerMovement : MonoBehaviour
             return false;
         }
         return true;
+    }
+    private void playsound()
+    {
+        footstep.enabled = true;
+    }
+    private void endSound()
+    {
+        footstep.enabled = false;
     }
 }
