@@ -156,6 +156,7 @@ public class PlayerInteract : MonoBehaviour
     private void death() {
         transform.gameObject.GetComponent<PlayerMovement>().enabled = false;
         transform.gameObject.GetComponent<PlayerInteract>().enabled = false;
+        inventoryManager.gameObject.SetActive(false);
         camControl.enabled = false;
     }
     private IEnumerator ResetToggleFlag() {

@@ -257,7 +257,7 @@ public class EnemyController : MonoBehaviour {
     private void playFootstep()
     {
         footstep.enabled = true;
-        Debug.Log("footstep.enabled = true");
+        //Debug.Log("footstep.enabled = true");
     }
 
     private void endFootstep()

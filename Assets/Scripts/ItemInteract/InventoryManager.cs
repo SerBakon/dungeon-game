@@ -16,6 +16,7 @@ public class InventoryManager : MonoBehaviour
 
     [SerializeField] private AudioClip gunshot;
     [SerializeField] private AudioSource gunAudio;
+    [SerializeField] private GameObject gunLight;
 
     [SerializeField] private TextMeshProUGUI numItems;
 
@@ -34,6 +35,7 @@ public class InventoryManager : MonoBehaviour
     void Start()
     {
         selectFirstSlot();
+        gunLight.gameObject.SetActive(false);
         numObject3 = 3;
         holdingDonut = false;
     }
@@ -150,8 +152,9 @@ public class InventoryManager : MonoBehaviour
         bullet.startWidth = 0.01f;
         bullet.endWidth = 0.01f;
         //bullet.material = new Material(Shader.Find("Unlit/Color")) { color = Color.red };
-
+        gunLight.gameObject.SetActive(true);
         yield return new WaitForSeconds(.3f);
+        gunLight.gameObject.SetActive(false);
         bullet.gameObject.SetActive(false);
     }
 }
