@@ -30,6 +30,8 @@ public class EnemyController : MonoBehaviour {
 
     [Header("Sounds")]
     [SerializeField] private AudioSource footstep;
+    [SerializeField] private AudioSource Scream;
+    [SerializeField] private AudioClip screechSound;
 
     private float stateTimer = 0f;
     private float attackCooldown = 0f;
@@ -40,6 +42,7 @@ public class EnemyController : MonoBehaviour {
     private Transform currentTarget;
     private Vector3 savedDestination; // Store the original destination
     private bool isHandlingDoor = false; // Flag to check if currently handling a door
+    private bool playedSound = false;
 
     private Vector3 doorCheckSize = new Vector3(.25f, .25f, .5f);
 
@@ -121,6 +124,12 @@ public class EnemyController : MonoBehaviour {
     private void beginHunt() {
         // Update target in case a closer player appears
         currentTarget = GetClosestPlayer();
+        if(!playedSound)
+        {
+            Scream.Play();
+            playedSound = true;
+        }
+        
 
         if (currentTarget != null && !isHandlingDoor) {
             agent.SetDestination(currentTarget.position);

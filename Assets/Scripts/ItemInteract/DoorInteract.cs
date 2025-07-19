@@ -7,6 +7,7 @@ public class DoorInteract : MonoBehaviour
         bool doorIsActive = door.gameObject.activeSelf;
         door.gameObject.SetActive(!doorIsActive);
         doorTrigger.GetComponent<Collider>().isTrigger = doorIsActive;
+        doorTrigger.GetComponent<AudioSource>().Play();
     }
 
     public void openDoor(Transform doorTrigger) {
