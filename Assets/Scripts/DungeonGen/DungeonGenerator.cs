@@ -28,6 +28,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject wallZ;
     [SerializeField] private GameObject enemy;
     [SerializeField] private GameObject donut;
+    [SerializeField] private GameObject EscapeBlock;
 
     [Header("Transforms")]
     public Transform wallParent;
@@ -91,6 +92,11 @@ public class DungeonGenerator : MonoBehaviour
         }
         GenStarterWalls();
         fillDoors();
+        generateEscape(findFurthestBlock());
+    }
+
+    private void generateEscape(Vector3Int position) {
+        tilesTotal.Add(Instantiate(EscapeBlock, position + Vector3Int.up, Quaternion.identity));
     }
 
     private void InitializeStarterWalls() {
@@ -264,5 +270,20 @@ public class DungeonGenerator : MonoBehaviour
             if(!starterFloorTotal.Contains(randomCoordinate)) 
                 tilesTotal.Add(Instantiate(enemy, randomCoordinate, Quaternion.identity, enemyParent));
         }
+    }
+
+    private Vector3Int findFurthestBlock() {
+        Vector3Int furthest = Vector3Int.zero;
+        float maxDistance = 0f;
+
+        foreach (Vector3Int block in floorsTotal) {
+            float distance = Vector3Int.Distance(Vector3Int.zero, block);
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                furthest = block;
+            }
+        }
+
+        return furthest;
     }
 }
