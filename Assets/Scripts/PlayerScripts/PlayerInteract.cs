@@ -7,6 +7,7 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] private GameObject openDoorText;
     [SerializeField] private GameObject closeDoorText;
     [SerializeField] private GameObject pickUpItemText;
+    [SerializeField] private GameObject escapeText;
 
     //[SerializeField] private Transform eyePos;
     [SerializeField] private Transform handPos;
@@ -14,8 +15,10 @@ public class PlayerInteract : MonoBehaviour
 
     [SerializeField] private LayerMask doorLayer;
     [SerializeField] private LayerMask itemLayer;
+    [SerializeField] private LayerMask escapeLayer;
 
     private bool lookingAt;
+    private bool escaping;
     public bool holdingItem = false;
     private bool justToggled = false;
 
@@ -32,12 +35,28 @@ public class PlayerInteract : MonoBehaviour
     private void Update() {
         checkLookingDoor();
         checkLookingItem();
+        checkLookingEscape();
         drop();
         eatDonut();
 
         ray = playerCam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         if(healthBar.HP <= 0) {
             death();
+        }
+    }
+
+    private void checkLookingEscape() {
+        //if (Physics.Raycast(ray, 1.5f, escapeLayer)) Debug.Log("escape box");
+        escaping = Physics.Raycast(ray, 1.5f, escapeLayer);
+        if (escaping) {
+            escapeText.SetActive(true);
+            //Debug.Log("looking at escape block");
+            if (Input.GetKeyDown(KeyCode.F)) {
+                Debug.Log("escaped");
+            }
+        } else {
+            escapeText.SetActive(false);
+            progressBar.progress = 0;
         }
     }
 
