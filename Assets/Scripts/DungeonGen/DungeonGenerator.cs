@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Unity.AI.Navigation;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,6 +30,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject enemy;
     [SerializeField] private GameObject donut;
     [SerializeField] private GameObject EscapeBlock;
+    [SerializeField] private GameObject player;
 
     [Header("Transforms")]
     public Transform wallParent;
@@ -37,15 +39,23 @@ public class DungeonGenerator : MonoBehaviour
     public Transform doorParent;
     public Transform enemyParent;
     public Transform groundItems;
+    public Vector3Int escapeBlockPos;
+
+    [Header("Script References")]
+    [SerializeField] private PlayerInteract playerInteract;
 
     private HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
     private HashSet<GameObject> tilesTotal = new HashSet<GameObject>();
+    private HashSet<GameObject> oldTiles = new HashSet<GameObject>();
+    private HashSet<GameObject> donuts = new HashSet<GameObject>();
 
     private HashSet<Vector3Int> wallsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> doorsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> floorsTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> starterWallTotal = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> starterFloorTotal = new HashSet<Vector3Int>();
+
+    private HashSet<GameObject> enemies = new HashSet<GameObject>();
 
     private BuildNavMesh buildNavMesh;
 
@@ -65,7 +75,6 @@ public class DungeonGenerator : MonoBehaviour
         buildNavMesh = GetComponent<BuildNavMesh>();
         generate();
         buildNavMesh.buildMesh();
-        generateEnemies();
     }
 
     private void Update() {
@@ -92,7 +101,13 @@ public class DungeonGenerator : MonoBehaviour
         }
         GenStarterWalls();
         fillDoors();
-        generateEscape(findFurthestBlock());
+        escapeBlockPos = findFurthestBlock();
+        generateEscape(escapeBlockPos);
+        playerInteract.alive();
+        player.transform.position = new Vector3Int(0, 1, 0);
+        generateEnemies();
+        buildNavMesh.updateMesh();
+        destroyOld();
     }
 
     private void generateEscape(Vector3Int position) {
@@ -129,13 +144,27 @@ public class DungeonGenerator : MonoBehaviour
 
     private void clear() {
         foreach (var tile in tilesTotal) {
-            Destroy(tile); // Destroy old tiles from the scene
+            //GameObjectUtility.SetStaticEditorFlags(tile, StaticEditorFlags.NavigationStatic, false);
+            //Destroy(tile); // Destroy old tiles from the scene
+            oldTiles.Add(tile);
+            tile.SetActive(false);
+        }
+        foreach (var enemy in enemies) {
+            Destroy(enemy); // Destroy old tiles from the scene
+        }
+        foreach (var donut in donuts) {
+            Destroy(donut); // Destroy old tiles from the scene
         }
         tilesTotal.Clear(); // Clear the list
         visited.Clear();
         wallsTotal.Clear();
         doorsTotal.Clear();
         floorsTotal.Clear();
+    }
+    private void destroyOld() {
+        foreach (var tile in oldTiles) {
+            Destroy(tile);
+        }
     }
 
     private void tileGen(GameObject tile, HashSet<Vector3Int> floorPos) {
@@ -183,7 +212,8 @@ public class DungeonGenerator : MonoBehaviour
     {
         if (donut == null || positions == null || positions.Count == 0) return;
 
-        Instantiate(donut, positions.ElementAt(Random.Range(0, positions.Count)) + Vector3Int.up, Quaternion.Euler(-90f, 0, 0), groundItems);
+        var newDonut = Instantiate(donut, positions.ElementAt(Random.Range(0, positions.Count)) + Vector3Int.up, Quaternion.Euler(-90f, 0, 0), groundItems);
+        donuts.Add(newDonut);
     }
     private void doorGen(Vector3Int doorPos) {
         //check to see if up,down,left,right contains either a wall tile or a door tile, if it does, generate a wall, if not, generate a door in the prefab
@@ -268,7 +298,7 @@ public class DungeonGenerator : MonoBehaviour
             //Debug.Log("generating enemies");
             var randomCoordinate = floorsTotal.ElementAt(Random.Range(0, floorsTotal.Count));
             if(!starterFloorTotal.Contains(randomCoordinate)) 
-                tilesTotal.Add(Instantiate(enemy, randomCoordinate, Quaternion.identity, enemyParent));
+                enemies.Add(Instantiate(enemy, randomCoordinate, Quaternion.identity, enemyParent));
         }
     }
 

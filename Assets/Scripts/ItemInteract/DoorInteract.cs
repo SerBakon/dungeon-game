@@ -14,5 +14,6 @@ public class DoorInteract : MonoBehaviour
         Transform door = doorTrigger.GetChild(0);
         door.gameObject.SetActive(false);
         doorTrigger.GetComponent<Collider>().isTrigger = true;
+        //doorTrigger.GetComponent<AudioSource>().Play();
     }
 }

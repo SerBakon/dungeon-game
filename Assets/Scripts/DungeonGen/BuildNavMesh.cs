@@ -8,4 +8,9 @@ public class BuildNavMesh : MonoBehaviour
     public void buildMesh() {
         m_NavmeshSurface.BuildNavMesh();
     }
+
+    public void updateMesh() {
+        m_NavmeshSurface.RemoveData();
+        buildMesh();
+    }
 }

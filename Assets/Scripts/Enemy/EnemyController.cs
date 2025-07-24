@@ -57,37 +57,36 @@ public class EnemyController : MonoBehaviour {
         checkPlayer();
         stateTimer += Time.deltaTime;
         attackCooldown += Time.deltaTime;
-
         switch (currentState) {
-            case TrackingState.Waiting:
-                endFootstep();
-                setIdle();
-                if (stateTimer >= initialDelay) {
-                    StartTracking();
-                }
-                break;
+                case TrackingState.Waiting:
+                    endFootstep();
+                    setIdle();
+                    if (stateTimer >= initialDelay) {
+                        StartTracking();
+                    }
+                    break;
 
-            case TrackingState.Cooldown:
-                endFootstep();
-                setIdle();
-                if (stateTimer >= updateInterval) {
-                    StartTracking();
-                }
-                break;
+                case TrackingState.Cooldown:
+                    endFootstep();
+                    setIdle();
+                    if (stateTimer >= updateInterval) {
+                        StartTracking();
+                    }
+                    break;
 
-            case TrackingState.Tracking:
-                playFootstep();
-                setTracking();
-                if (stateTimer >= trackingDuration) {
-                    StopTracking();
-                }
-                
-                break;
-            case TrackingState.Hunting:
-                playFootstep();
-                beginHunt();
-                break;
-        }
+                case TrackingState.Tracking:
+                    playFootstep();
+                    setTracking();
+                    if (stateTimer >= trackingDuration) {
+                        StopTracking();
+                    }
+
+                    break;
+                case TrackingState.Hunting:
+                    playFootstep();
+                    beginHunt();
+                    break;
+            }
     }
 
     private Transform GetClosestPlayer() {

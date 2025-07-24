@@ -34,7 +34,7 @@ public class InventoryManager : MonoBehaviour
     private bool selectingThird = false;
     void Start()
     {
-        selectFirstSlot();
+        selectSecondSlot();
         gunLight.gameObject.SetActive(false);
         numObject3 = 3;
         holdingDonut = false;
