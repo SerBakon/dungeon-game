@@ -43,6 +43,7 @@ public class DungeonGenerator : MonoBehaviour
 
     [Header("Script References")]
     [SerializeField] private PlayerInteract playerInteract;
+    [SerializeField] private InventoryManager inventoryManager;
 
     private HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
     private HashSet<GameObject> tilesTotal = new HashSet<GameObject>();
@@ -108,6 +109,7 @@ public class DungeonGenerator : MonoBehaviour
         generateEnemies();
         buildNavMesh.updateMesh();
         destroyOld();
+        inventoryManager.numObject3 = 3;
     }
 
     private void generateEscape(Vector3Int position) {

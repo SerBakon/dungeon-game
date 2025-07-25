@@ -109,9 +109,6 @@ public class PlayerInteract : MonoBehaviour
             );
             yield return null; // Wait for next frame
         }
-        Debug.Log("send win text");
-        winHUD.SetActive(true);
-        aliveHUD.SetActive(false);
     }
 
 
@@ -266,7 +263,7 @@ public class PlayerInteract : MonoBehaviour
         // stop movement
         transform.gameObject.GetComponent<PlayerMovement>().enabled = false;
         transform.gameObject.GetComponent<PlayerInteract>().enabled = false;
-        playerCam.GetComponent<AudioListener>().enabled = false;
+        AudioListener.pause = true;
 
         //set hud
         aliveHUD.SetActive(false);
@@ -284,7 +281,8 @@ public class PlayerInteract : MonoBehaviour
         // reenabling movement/interactions
         transform.gameObject.GetComponent<PlayerMovement>().enabled = true;
         transform.gameObject.GetComponent<PlayerInteract>().enabled = true;
-        playerCam.GetComponent<AudioListener>().enabled = true;
+        AudioListener.pause = false;
+
         aliveHUD.SetActive(true);
         deadHUD.SetActive(false);
         winHUD.SetActive(false);
@@ -305,7 +303,7 @@ public class PlayerInteract : MonoBehaviour
     public void escaped() {
         transform.gameObject.GetComponent<PlayerMovement>().enabled = false;
         transform.gameObject.GetComponent<PlayerInteract>().enabled = false;
-        playerCam.GetComponent<AudioListener>().enabled = false;
+        AudioListener.pause = true;
         aliveHUD.SetActive(false);
         winHUD.SetActive(true);
         deadHUD.SetActive(false);
